@@ -5,16 +5,23 @@
 <title>Opsilon · Alpha</title>
 
 <style>
+  :root {
+    --yellow: rgb(252, 205, 73);
+    --purple-bg: rgb(14, 11, 18);
+    --purple-panel: rgb(20, 16, 28);
+    --purple-hover: rgb(28, 22, 38);
+  }
+
   body {
     margin: 0;
-    background: #121212;
+    background: var(--purple-bg);
     color: white;
     font-family: sans-serif;
   }
 
   .content {
     padding: 24px;
-    padding-bottom: 120px;
+    padding-bottom: 130px;
   }
 
   h1 {
@@ -25,21 +32,21 @@
   .track {
     display: grid;
     grid-template-columns: 40px 1fr 60px;
-    padding: 10px;
-    border-bottom: 1px solid #222;
+    padding: 12px;
+    border-bottom: 1px solid #2a2236;
     cursor: pointer;
   }
 
   .track:hover {
-    background: #1a1a1a;
+    background: var(--purple-hover);
   }
 
   .track.active {
-    background: #1db95422;
+    background: rgba(252, 205, 73, 0.12);
   }
 
   .track span {
-    opacity: 0.8;
+    opacity: 0.85;
   }
 
   /* PLAYER */
@@ -48,20 +55,20 @@
     bottom: 0;
     left: 0;
     right: 0;
-    height: 90px;
-    background: #181818;
-    border-top: 1px solid #222;
+    height: 100px;
+    background: var(--purple-panel);
+    border-top: 1px solid #2a2236;
     display: flex;
     align-items: center;
-    gap: 20px;
-    padding: 0 16px;
+    gap: 24px;
+    padding: 0 20px;
   }
 
   .player-left {
     display: flex;
     align-items: center;
     gap: 12px;
-    min-width: 220px;
+    min-width: 240px;
   }
 
   .player-left img {
@@ -86,27 +93,25 @@
     font-size: 12px;
   }
 
+  /* CENTER */
   .player-center {
     flex: 1;
-    max-width: 500px;
     display: flex;
-    flex-direction: column;
-    gap: 8px;
+    align-items: center;
+    gap: 14px;
   }
 
-  .play-btn {
-    align-self: center;
-    background: none;
-    border: 1px solid white;
-    color: white;
-    padding: 6px 16px;
-    cursor: pointer;
+  .time {
+    font-size: 12px;
+    opacity: 0.7;
+    min-width: 70px;
+    text-align: center;
   }
 
   .progress-container {
-    width: 100%;
+    flex: 1;
     height: 6px;
-    background: #333;
+    background: #3a2f4d;
     border-radius: 10px;
     cursor: pointer;
   }
@@ -114,8 +119,21 @@
   .progress {
     height: 100%;
     width: 0%;
-    background: #1db954;
+    background: var(--yellow);
     border-radius: 10px;
+  }
+
+  .play-btn {
+    background: none;
+    border: 1px solid var(--yellow);
+    color: var(--yellow);
+    padding: 6px 16px;
+    cursor: pointer;
+    border-radius: 20px;
+  }
+
+  .play-btn:hover {
+    background: rgba(252, 205, 73, 0.15);
   }
 </style>
 </head>
@@ -149,11 +167,15 @@
   </div>
 
   <div class="player-center">
-    <button class="play-btn" id="playBtn">Play</button>
+    <div class="time" id="currentTime">0:00</div>
 
     <div class="progress-container" id="progressContainer">
       <div class="progress" id="progress"></div>
     </div>
+
+    <div class="time" id="duration">0:00</div>
+
+    <button class="play-btn" id="playBtn">Play</button>
   </div>
 </div>
 
@@ -165,9 +187,17 @@
   const progress = document.getElementById("progress");
   const progressContainer = document.getElementById("progressContainer");
   const nowPlaying = document.getElementById("nowPlaying");
+  const currentTimeEl = document.getElementById("currentTime");
+  const durationEl = document.getElementById("duration");
   const tracks = document.querySelectorAll(".track");
 
   let currentTrack = null;
+
+  function formatTime(time) {
+    const minutes = Math.floor(time / 60);
+    const seconds = Math.floor(time % 60).toString().padStart(2, "0");
+    return `${minutes}:${seconds}`;
+  }
 
   tracks.forEach(track => {
     track.addEventListener("click", () => {
@@ -200,9 +230,17 @@
     }
   });
 
+  audio.addEventListener("loadedmetadata", () => {
+    durationEl.textContent = formatTime(audio.duration);
+  });
+
   audio.addEventListener("timeupdate", () => {
     if (!audio.duration) return;
-    progress.style.width = (audio.currentTime / audio.duration) * 100 + "%";
+
+    progress.style.width =
+      (audio.currentTime / audio.duration) * 100 + "%";
+
+    currentTimeEl.textContent = formatTime(audio.currentTime);
   });
 
   progressContainer.addEventListener("click", (e) => {
@@ -213,4 +251,3 @@
 
 </body>
 </html>
-
